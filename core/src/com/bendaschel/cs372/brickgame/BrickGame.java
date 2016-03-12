@@ -5,6 +5,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 
 public class BrickGame extends ApplicationAdapter {
 
@@ -16,6 +18,10 @@ public class BrickGame extends ApplicationAdapter {
 	private Ball mBall;
 	private int mScreenHeight;
 	private int mScreenWidth;
+	private Rectangle mGameWallTop;
+	private Rectangle mGameWallLeft;
+	private Rectangle mGameWallRight;
+	private Rectangle mGameWallBottom;
 
 	@Override
 	public void create () {
@@ -24,8 +30,11 @@ public class BrickGame extends ApplicationAdapter {
 		mScreenHeight = Gdx.graphics.getHeight();
 		mScreenWidth = Gdx.graphics.getWidth();
 		mBall = new Ball(ballTexture);
-		mBall.getPosition().set(0, 0);
-		mBall.getVelocity().set(1, 1);
+		mBall.getVelocity().set(2, 2);
+		mGameWallTop = new Rectangle(0, mScreenHeight, mScreenWidth, 1);
+		mGameWallLeft = new Rectangle(-1, 0, 1, mScreenHeight);
+		mGameWallRight = new Rectangle(mScreenWidth, 0, 1, mScreenHeight);
+		mGameWallBottom = new Rectangle(0, -1, mScreenWidth, 1);
 	}
 
 	@Override
@@ -39,7 +48,15 @@ public class BrickGame extends ApplicationAdapter {
 	}
 
 	private void updateBallPosition() {
-		mBall.getPosition().add(mBall.getVelocity());
+		Rectangle bounds = mBall.getBoundary();
+		Vector2 ballVelocity = mBall.getVelocity();
+		if (bounds.overlaps(mGameWallBottom) || bounds.overlaps(mGameWallTop)) {
+			ballVelocity.set(ballVelocity.x, ballVelocity.y * -1);
+		}
+		if (bounds.overlaps(mGameWallLeft) || bounds.overlaps(mGameWallRight)) {
+			ballVelocity.set(ballVelocity.x * -1, ballVelocity.y);
+		}
+		bounds.setPosition(mBall.getPosition().add(ballVelocity));
 	}
 
 }
