@@ -105,6 +105,7 @@ public class BrickGame extends ApplicationAdapter {
 			Block block = mBlocks.get(i);
 			if (mBall.getBoundary().overlaps(block.getBoundary())) {
 				mBlocks.removeIndex(i);
+				break; // During one update cycle the ball is only ever in one position
 			}
 		}
 	}
