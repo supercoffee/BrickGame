@@ -74,6 +74,7 @@ public class BrickGame extends ApplicationAdapter {
 		Gdx.gl.glClearColor(BG_COLOR_RED, BG_COLOR_GREEN, BG_COLOR_BLUE, BG_ALPHA);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		updateBallPosition();
+		updateBlocks();
 		batch.begin();
 		batch.draw(mBall.getTexture(), mBall.getPosition().x, mBall.getPosition().y);
 		// Use standard for loop to avoid allocating a new Iterator
@@ -97,6 +98,15 @@ public class BrickGame extends ApplicationAdapter {
 			ballVelocity.set(ballVelocity.x * -1, ballVelocity.y);
 		}
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
+	}
+
+	private void updateBlocks() {
+		for (int i = 0; i < mBlocks.size; i++) {
+			Block block = mBlocks.get(i);
+			if (mBall.getBoundary().overlaps(block.getBoundary())) {
+				mBlocks.removeIndex(i);
+			}
+		}
 	}
 
 }
