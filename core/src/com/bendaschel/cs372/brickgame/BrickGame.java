@@ -74,7 +74,6 @@ public class BrickGame extends ApplicationAdapter {
 		Gdx.gl.glClearColor(BG_COLOR_RED, BG_COLOR_GREEN, BG_COLOR_BLUE, BG_ALPHA);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		updateBallPosition();
-		updateBlocks();
 		batch.begin();
 		batch.draw(mBall.getTexture(), mBall.getPosition().x, mBall.getPosition().y);
 		// Use standard for loop to avoid allocating a new Iterator
@@ -92,22 +91,61 @@ public class BrickGame extends ApplicationAdapter {
 		Rectangle bounds = mBall.getBoundary();
 		Vector2 ballVelocity = mBall.getVelocity();
 		if (bounds.overlaps(mGameWallBottom) || bounds.overlaps(mGameWallTop)) {
-			ballVelocity.set(ballVelocity.x, ballVelocity.y * -1);
+			reverseYVelocity(ballVelocity);
 		}
 		if (bounds.overlaps(mGameWallLeft) || bounds.overlaps(mGameWallRight)) {
-			ballVelocity.set(ballVelocity.x * -1, ballVelocity.y);
+			reverseXVelocity(ballVelocity);
 		}
+		// Detect collision with blocks to change direction
+		// http://www.owenpellegrin.com/articles/vb-net/simple-collision-detection/
+		Block potentialCollision = isBallCollidingWithBlock();
+		if (potentialCollision != null) {
+			// Determine which side of ball touched which side of the block
+			Rectangle ballBoundingBox = mBall.getBoundary();
+			Rectangle blockBoundingBox = potentialCollision.getBoundary();
+
+			float ballLeftEdge  = ballBoundingBox.x;
+			float ballRightEdge = ballLeftEdge + ballBoundingBox.getWidth();
+			float ballBottomEdge = ballBoundingBox.y;
+			float ballTopEdge 	= ballBottomEdge + ballBoundingBox.getHeight();
+
+			float blockLeftEdge = blockBoundingBox.x;
+			float blockRightEdge = blockLeftEdge + blockBoundingBox.getWidth();
+			float blockBottomEdge = blockBoundingBox.y;
+			float blockTopEdge = blockBottomEdge + blockBoundingBox.getHeight();
+
+			// Horizontal collision
+			if ((ballLeftEdge < blockLeftEdge && ballRightEdge > blockLeftEdge) ||
+					(ballRightEdge > blockRightEdge && ballLeftEdge < blockLeftEdge)){
+				reverseXVelocity(ballVelocity);
+			}
+
+			//vertical collision
+			if ((ballTopEdge > blockBottomEdge && ballBottomEdge < blockBottomEdge) ||
+					(ballBottomEdge < blockTopEdge && ballTopEdge > blockTopEdge)){
+				reverseYVelocity(ballVelocity);
+			}
+		}
+
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
 	}
 
-	private void updateBlocks() {
+	private void reverseXVelocity(Vector2 ballVelocity) {
+		ballVelocity.set(ballVelocity.x * -1, ballVelocity.y);
+	}
+
+	private void reverseYVelocity(Vector2 ballVelocity) {
+		ballVelocity.set(ballVelocity.x, ballVelocity.y * -1);
+	}
+
+	private Block isBallCollidingWithBlock() {
 		for (int i = 0; i < mBlocks.size; i++) {
 			Block block = mBlocks.get(i);
 			if (mBall.getBoundary().overlaps(block.getBoundary())) {
-				mBlocks.removeIndex(i);
-				break; // During one update cycle the ball is only ever in one position
+				return mBlocks.removeIndex(i);
 			}
 		}
+		return null;
 	}
 
 }
