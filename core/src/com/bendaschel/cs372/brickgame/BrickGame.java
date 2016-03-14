@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
@@ -32,6 +33,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private int mScreenWidth;
 	private Array<Block> mBlocks;
 	private Paddle mPaddle;
+	private BitmapFont mFont;
 
 	@Override
 	public void create () {
@@ -40,11 +42,12 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		Texture ballTexture = new Texture("ball.png");
 		mScreenHeight = Gdx.graphics.getHeight();
 		mScreenWidth = Gdx.graphics.getWidth();
-		mBall = new Ball(ballTexture);
 		mBlockPatch = new NinePatch(new Texture("block.png"), 6, 6, 6, 6);
 		mPaddle = new Paddle(Color.GREEN);
 		mPaddle.getBoundary().set(0, 0, 128, 32);
-
+		mBall = new Ball(ballTexture);
+		mBall.getBoundary().setY(33); // Just above the height of the paddle to start
+		mFont = new BitmapFont();
 		mBlocks = createBlocks();
 		mBall.getVelocity().set(2, 2);
 		mGameWallTop = new Rectangle(0, mScreenHeight, mScreenWidth, 1);
@@ -100,6 +103,9 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private void updateBallPosition() {
 		Rectangle bounds = mBall.getBoundary();
 		Vector2 ballVelocity = mBall.getVelocity();
+		if (mBall.detectCollision(mPaddle.getBoundary()) != CollisionDetector.CollisionEdge.NONE) {
+			reverseYVelocity(ballVelocity);
+		}
 		if (bounds.overlaps(mGameWallBottom) || bounds.overlaps(mGameWallTop)) {
 			reverseYVelocity(ballVelocity);
 		}
@@ -120,10 +126,10 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 				case RIGHT:
 					reverseXVelocity(ballVelocity);
 					break;
-				default: continue;
+				default: continue; // to top of loop
 			}
 			mBlocks.removeIndex(i);
-			break;
+			break; // out of loop
 		}
 
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
