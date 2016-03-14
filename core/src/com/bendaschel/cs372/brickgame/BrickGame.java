@@ -7,13 +7,14 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 import java.util.Random;
 
-public class BrickGame extends ApplicationAdapter {
+public class BrickGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 
 	static final int NUM_BLOCKS = 20;
 	static final int BG_COLOR_RED = 1;
@@ -30,15 +31,20 @@ public class BrickGame extends ApplicationAdapter {
 	private int mScreenHeight;
 	private int mScreenWidth;
 	private Array<Block> mBlocks;
+	private Paddle mPaddle;
 
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
+		Gdx.input.setInputProcessor(new GestureDetector(this));
 		Texture ballTexture = new Texture("ball.png");
 		mScreenHeight = Gdx.graphics.getHeight();
 		mScreenWidth = Gdx.graphics.getWidth();
 		mBall = new Ball(ballTexture);
 		mBlockPatch = new NinePatch(new Texture("block.png"), 6, 6, 6, 6);
+		mPaddle = new Paddle(Color.GREEN);
+		mPaddle.getBoundary().set(0, 0, 128, 32);
+
 		mBlocks = createBlocks();
 		mBall.getVelocity().set(2, 2);
 		mGameWallTop = new Rectangle(0, mScreenHeight, mScreenWidth, 1);
@@ -75,6 +81,10 @@ public class BrickGame extends ApplicationAdapter {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		updateBallPosition();
 		batch.begin();
+		mBlockPatch.setColor(mPaddle.getColor());
+		// Paddle uses same nine-patch as the bricks
+		mBlockPatch.draw(batch, mPaddle.getBoundary().x, mPaddle.getBoundary().y,
+				mPaddle.getBoundary().getWidth(), mPaddle.getBoundary().getHeight());
 		batch.draw(mBall.getTexture(), mBall.getPosition().x, mBall.getPosition().y);
 		// Use standard for loop to avoid allocating a new Iterator
 		for (int i = 0; i < mBlocks.size; i++) {
@@ -148,4 +158,46 @@ public class BrickGame extends ApplicationAdapter {
 		return null;
 	}
 
+	@Override
+	public boolean touchDown(float x, float y, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean tap(float x, float y, int count, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean longPress(float x, float y) {
+		return false;
+	}
+
+	@Override
+	public boolean fling(float velocityX, float velocityY, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean pan(float x, float y, float deltaX, float deltaY) {
+		float originalX = mPaddle.getBoundary().x;
+		float newX =  originalX + deltaX;
+		mPaddle.getBoundary().setX(newX);
+		return true;
+	}
+
+	@Override
+	public boolean panStop(float x, float y, int pointer, int button) {
+		return false;
+	}
+
+	@Override
+	public boolean zoom(float initialDistance, float distance) {
+		return false;
+	}
+
+	@Override
+	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+		return false;
+	}
 }
