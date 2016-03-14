@@ -106,35 +106,24 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		if (bounds.overlaps(mGameWallLeft) || bounds.overlaps(mGameWallRight)) {
 			reverseXVelocity(ballVelocity);
 		}
-		// Detect collision with blocks to change direction
-		// http://www.owenpellegrin.com/articles/vb-net/simple-collision-detection/
-		Block potentialCollision = isBallCollidingWithBlock();
-		if (potentialCollision != null) {
-			// Determine which side of ball touched which side of the block
-			Rectangle ballBoundingBox = mBall.getBoundary();
-			Rectangle blockBoundingBox = potentialCollision.getBoundary();
 
-			float ballLeftEdge  = ballBoundingBox.x;
-			float ballRightEdge = ballLeftEdge + ballBoundingBox.getWidth();
-			float ballBottomEdge = ballBoundingBox.y;
-			float ballTopEdge 	= ballBottomEdge + ballBoundingBox.getHeight();
-
-			float blockLeftEdge = blockBoundingBox.x;
-			float blockRightEdge = blockLeftEdge + blockBoundingBox.getWidth();
-			float blockBottomEdge = blockBoundingBox.y;
-			float blockTopEdge = blockBottomEdge + blockBoundingBox.getHeight();
-
-			// Horizontal collision
-			if ((ballLeftEdge < blockLeftEdge && ballRightEdge > blockLeftEdge) ||
-					(ballRightEdge > blockRightEdge && ballLeftEdge < blockLeftEdge)){
-				reverseXVelocity(ballVelocity);
+		// Detect ball to block collisions
+		for (int i = 0; i < mBlocks.size; i++) {
+			Block block = mBlocks.get(i);
+			CollisionDetector.CollisionEdge edge = mBall.detectCollision(block.getBoundary());
+			switch (edge) {
+				case TOP:
+				case BOTTOM:
+					reverseYVelocity(ballVelocity);
+					break;
+				case LEFT:
+				case RIGHT:
+					reverseXVelocity(ballVelocity);
+					break;
+				default: continue;
 			}
-
-			//vertical collision
-			if ((ballTopEdge > blockBottomEdge && ballBottomEdge < blockBottomEdge) ||
-					(ballBottomEdge < blockTopEdge && ballTopEdge > blockTopEdge)){
-				reverseYVelocity(ballVelocity);
-			}
+			mBlocks.removeIndex(i);
+			break;
 		}
 
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
@@ -148,15 +137,6 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		ballVelocity.set(ballVelocity.x, ballVelocity.y * -1);
 	}
 
-	private Block isBallCollidingWithBlock() {
-		for (int i = 0; i < mBlocks.size; i++) {
-			Block block = mBlocks.get(i);
-			if (mBall.getBoundary().overlaps(block.getBoundary())) {
-				return mBlocks.removeIndex(i);
-			}
-		}
-		return null;
-	}
 
 	@Override
 	public boolean touchDown(float x, float y, int pointer, int button) {

@@ -6,8 +6,9 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Ball
         implements Components.TextureComponent, Components.VelocityComponent,
-        Components.ShapeComponent, Components.PositionComponent{
+        Components.ShapeComponent, Components.PositionComponent, Components.CollisionComponent{
 
+    private final CollisionDetector mCollisionDetector;
     private Texture mTexture;
     private Vector2 mVelocity;
     private Vector2 mPosition;
@@ -18,6 +19,7 @@ public class Ball
         mVelocity = new Vector2();
         mBoundingRectangle = new Rectangle(0, 0, texture.getWidth(), texture.getHeight());
         mPosition = mBoundingRectangle.getPosition(new Vector2());
+        mCollisionDetector = new CollisionDetector(mBoundingRectangle);
     }
 
     public Texture getTexture() {
@@ -40,4 +42,8 @@ public class Ball
         return mBoundingRectangle.getPosition(mPosition);
     }
 
+    @Override
+    public CollisionDetector.CollisionEdge detectCollision(Rectangle other) {
+        return mCollisionDetector.detectCollision(other);
+    }
 }

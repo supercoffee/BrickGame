@@ -26,4 +26,8 @@ public class Components {
     public interface ColorComponent {
         Color getColor();
     }
+
+    public interface CollisionComponent {
+        CollisionDetector.CollisionEdge detectCollision(Rectangle other);
+    }
 }
