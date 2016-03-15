@@ -1,7 +1,9 @@
 buildscript {
     repositories {
         mavenCentral()
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven {
+            url "https://oss.sonatype.org/content/repositories/snapshots/"
+        }
         jcenter()
     }
     dependencies {
@@ -28,6 +30,7 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+        maven { url 'https://dl.bintray.com/supercoffee/maven/' }
     }
 }
 
@@ -52,6 +55,7 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
         compile "com.android.support:support-v4:18.0.+"
 
+        compile 'com.bendaschel:seven-segment-view:1.0'
     }
 }
 

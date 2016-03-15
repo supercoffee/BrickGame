@@ -1,21 +1,15 @@
 package com.bendaschel.cs372.brickgame;
 
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
-
-public class GameFragment extends AndroidFragmentApplication {
-
-    BrickGame mGame;
+public class ScoreBoardFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mGame = new BrickGame();
-        return initializeForView(mGame);
+        return inflater.inflate(R.layout.fragment_scoreboard, container, false);
     }
-
-
 }
