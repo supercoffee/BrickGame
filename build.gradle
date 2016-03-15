@@ -66,6 +66,9 @@ project(":core") {
     dependencies {
         compile "com.badlogicgames.gdx:gdx:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        compile 'org.greenrobot:eventbus:3.0.0'
+        compile 'com.squareup.dagger:dagger:1.2.2'
+        compile 'com.squareup.dagger:dagger-compiler:1.2.2'
     }
 }
 
