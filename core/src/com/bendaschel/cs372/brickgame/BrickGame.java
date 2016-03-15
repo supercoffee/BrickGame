@@ -33,7 +33,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private int mScreenWidth;
 	private Array<Block> mBlocks;
 	private Paddle mPaddle;
-	private BitmapFont mFont;
+
 
 	@Override
 	public void create () {
@@ -47,7 +47,6 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		mPaddle.getBoundary().set(0, 0, 128, 32);
 		mBall = new Ball(ballTexture);
 		mBall.getBoundary().setY(33); // Just above the height of the paddle to start
-		mFont = new BitmapFont();
 		mBlocks = createBlocks();
 		mBall.getVelocity().set(2, 2);
 		mGameWallTop = new Rectangle(0, mScreenHeight, mScreenWidth, 1);
