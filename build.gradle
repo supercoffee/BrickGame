@@ -54,8 +54,8 @@ project(":android") {
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
         natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
         compile "com.android.support:support-v4:18.0.+"
-
         compile 'com.bendaschel:seven-segment-view:1.0'
+        compile 'com.jakewharton:butterknife:7.0.1'
     }
 }
 

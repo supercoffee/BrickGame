@@ -2,5 +2,6 @@
 <resources>
 
     <string name="app_name">BrickGame</string>
+    <string name="toast_about">Created by Benjamin Daschel</string>
 
 </resources>
