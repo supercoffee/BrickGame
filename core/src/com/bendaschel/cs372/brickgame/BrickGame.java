@@ -118,6 +118,8 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		Rectangle bounds = mBall.getBoundary();
 		Vector2 ballVelocity = mBall.getVelocity();
 		if (mBall.detectCollision(mPaddle.getBoundary()) != CollisionDetector.CollisionEdge.NONE) {
+			// change ball position to prevent glitchiness when balls collides with paddle side
+			bounds.setY(mPaddle.getBoundary().y + mPaddle.getBoundary().getHeight() + 1);
 			reverseYVelocity(ballVelocity);
 		}
 		if (bounds.overlaps(mGameWallBottom) || bounds.overlaps(mGameWallTop)) {
