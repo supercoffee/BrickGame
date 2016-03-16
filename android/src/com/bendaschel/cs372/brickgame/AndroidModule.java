@@ -7,7 +7,8 @@ import dagger.Module;
                 GameModule.class
         },
         injects = {
-                ScoreBoardFragment.class
+                ScoreBoardFragment.class,
+                GameFragment.class
         }
 )
 public class AndroidModule {

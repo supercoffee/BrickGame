@@ -3,5 +3,9 @@
 
     <string name="app_name">BrickGame</string>
     <string name="toast_about">Created by Benjamin Daschel</string>
+    <string name="game_over">Game Over!</string>
+    <string name="play_again">Play again?</string>
+    <string name="start_over">Start over</string>
+    <string name="retry_level">Retry level</string>
 
 </resources>

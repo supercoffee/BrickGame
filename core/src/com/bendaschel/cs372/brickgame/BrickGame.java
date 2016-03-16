@@ -11,17 +11,18 @@ import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.bendaschel.cs372.brickgame.events.BallLostEvent;
 import com.bendaschel.cs372.brickgame.events.BrickDestroyedEvent;
+import com.bendaschel.cs372.brickgame.events.GameOverEvent;
 import com.bendaschel.cs372.brickgame.events.ScoreEvent;
 
 import org.greenrobot.eventbus.EventBus;
-
-import java.util.Random;
 
 import javax.inject.Inject;
 
 public class BrickGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 
+	public static final int INITIAL_BALLS_REMAINING = 4;
 	static final int NUM_BLOCKS = 20;
 	static final int BG_COLOR_RED = 1;
 	static final int BG_COLOR_GREEN = 1;
@@ -44,6 +45,9 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	private ScoreEvent mScoreEvent = new ScoreEvent();
 	private BrickDestroyedEvent mBrickDestroyedEvent = new BrickDestroyedEvent();
+	private BallLostEvent mBallLostEvent = new BallLostEvent(INITIAL_BALLS_REMAINING);
+	private GameOverEvent mGameOverEvent = new GameOverEvent();
+	private boolean mGameRunning;
 
 	@Inject
 	public BrickGame(EventBus eventBus) {
@@ -60,21 +64,26 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		mBlockPatch = new NinePatch(new Texture("block.png"), 6, 6, 6, 6);
 		mPaddle = new Paddle(Color.GREEN);
 		mPaddle.getBoundary().set(0, 0, 128, 32);
-		mBall = new Ball(ballTexture);
-		mBall.getBoundary().setY(33); // Just above the height of the paddle to start
 		mBlocks = createBlocks();
-		mBall.getVelocity().set(2, 2);
+		mBall = new Ball(ballTexture);
+		spawnBall();
 		mGameWallTop = new Rectangle(0, mScreenHeight, mScreenWidth, 1);
 		mGameWallLeft = new Rectangle(-1, 0, 1, mScreenHeight);
 		mGameWallRight = new Rectangle(mScreenWidth, 0, 1, mScreenHeight);
 		mGameWallBottom = new Rectangle(0, -1, mScreenWidth, 1);
+		setGameRunning(true);
+	}
+
+	private void spawnBall() {
+		mBall.getBoundary().setPosition(mScreenWidth / 2, (mScreenHeight / 2) - getBlockHeight());
+		mBall.getVelocity().set(2, -2);
 	}
 
 	private Array<Block> createBlocks() {
 		Array<Block> blocks = new Array<Block>(NUM_BLOCKS);
 		mBrickDestroyedEvent.bricksRemaining = NUM_BLOCKS;
 		mEventBus.postSticky(mBrickDestroyedEvent);
-		int blockHeight = mScreenHeight / 2 / MAX_BLOCK_ROWS;
+		int blockHeight = getBlockHeight();
 		int blockWidth = mScreenWidth / BLOCKS_PER_ROW;
 		int row = 1;
 		for (int i = 0; i < NUM_BLOCKS; i++, row = (i/ BLOCKS_PER_ROW) + 1){
@@ -86,8 +95,18 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		return blocks;
 	}
 
+	private int getBlockHeight() {
+		return mScreenHeight / 2 / MAX_BLOCK_ROWS;
+	}
+
 	@Override
 	public void render () {
+		if (mGameRunning) {
+			doRender();
+		}
+	}
+
+	private void doRender() {
 		Gdx.gl.glClearColor(BG_COLOR_RED, BG_COLOR_GREEN, BG_COLOR_BLUE, BG_ALPHA);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		updateBallPosition();
@@ -116,11 +135,15 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 			bounds.setY(mPaddle.getBoundary().y + mPaddle.getBoundary().getHeight() + 1);
 			reverseYVelocity(ballVelocity);
 		}
-		if (bounds.overlaps(mGameWallBottom) || bounds.overlaps(mGameWallTop)) {
+		if (bounds.overlaps(mGameWallTop)) {
 			reverseYVelocity(ballVelocity);
 		}
 		if (bounds.overlaps(mGameWallLeft) || bounds.overlaps(mGameWallRight)) {
 			reverseXVelocity(ballVelocity);
+		}
+		if (bounds.overlaps(mGameWallBottom)) {
+			onBallLost();
+			return;
 		}
 
 		// Detect ball to block collisions
@@ -147,6 +170,17 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		}
 
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
+	}
+
+	private void onBallLost() {
+		mBallLostEvent.ballRemaining--;
+		mEventBus.post(mBallLostEvent);
+		if (mBallLostEvent.ballRemaining > 0){
+			spawnBall();
+			return;
+		}
+		setGameRunning(false);
+		mEventBus.post(mGameOverEvent);
 	}
 
 	private void reverseXVelocity(Vector2 ballVelocity) {
@@ -199,5 +233,13 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	@Override
 	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
 		return false;
+	}
+
+	public void setGameRunning(boolean gameRunning) {
+		mGameRunning = gameRunning;
+	}
+
+	public void setBalls(int ballsRemaining) {
+		mBallLostEvent.ballRemaining = ballsRemaining;
 	}
 }
