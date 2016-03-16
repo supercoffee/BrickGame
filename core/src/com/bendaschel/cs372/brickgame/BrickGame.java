@@ -14,6 +14,7 @@ import com.badlogic.gdx.utils.Array;
 import com.bendaschel.cs372.brickgame.events.BallLostEvent;
 import com.bendaschel.cs372.brickgame.events.BrickDestroyedEvent;
 import com.bendaschel.cs372.brickgame.events.GameOverEvent;
+import com.bendaschel.cs372.brickgame.events.GameStartedEvent;
 import com.bendaschel.cs372.brickgame.events.ScoreEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -22,7 +23,7 @@ import javax.inject.Inject;
 
 public class BrickGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 
-	public static final int INITIAL_BALLS_REMAINING = 4;
+	public static final int INITIAL_BALLS_REMAINING = 3;
 	static final int NUM_BLOCKS = 20;
 	static final int BG_COLOR_RED = 1;
 	static final int BG_COLOR_GREEN = 1;
@@ -30,6 +31,8 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	static final int BG_ALPHA = 1;
 	private static final int BLOCKS_PER_ROW = 10;
 	private static final int MAX_BLOCK_ROWS = 10;
+	private static final int INITIAL_SCORE = 0;
+	private static final int STARTING_LEVEL = 1;
 	private final EventBus mEventBus;
 	SpriteBatch batch;
 	private Ball mBall;
@@ -43,10 +46,10 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private Array<Block> mBlocks;
 	private Paddle mPaddle;
 
-	private ScoreEvent mScoreEvent = new ScoreEvent();
-	private BrickDestroyedEvent mBrickDestroyedEvent = new BrickDestroyedEvent();
-	private BallLostEvent mBallLostEvent = new BallLostEvent(INITIAL_BALLS_REMAINING);
-	private GameOverEvent mGameOverEvent = new GameOverEvent();
+	private ScoreEvent mScoreEvent;
+	private BrickDestroyedEvent mBrickDestroyedEvent;
+	private BallLostEvent mBallLostEvent;
+	private GameOverEvent mGameOverEvent;
 	private boolean mGameRunning;
 
 	@Inject
@@ -54,30 +57,64 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		mEventBus = eventBus;
 	}
 
+	/**
+	 * Automatically called by game engine when initialized in GameFragment
+	 */
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
+		// Resources
 		Gdx.input.setInputProcessor(new GestureDetector(this));
+		batch = new SpriteBatch();
 		Texture ballTexture = new Texture("ball.png");
+		mBlockPatch = new NinePatch(new Texture("block.png"), 6, 6, 6, 6);
+		// game actor objects
+		mPaddle = new Paddle(Color.GREEN);
+		mBall = new Ball(ballTexture);
+		// Game walls
 		mScreenHeight = Gdx.graphics.getHeight();
 		mScreenWidth = Gdx.graphics.getWidth();
-		mBlockPatch = new NinePatch(new Texture("block.png"), 6, 6, 6, 6);
-		mPaddle = new Paddle(Color.GREEN);
-		mPaddle.getBoundary().set(0, 0, 128, 32);
-		mBlocks = createBlocks();
-		mBall = new Ball(ballTexture);
-		spawnBall();
 		mGameWallTop = new Rectangle(0, mScreenHeight, mScreenWidth, 1);
 		mGameWallLeft = new Rectangle(-1, 0, 1, mScreenHeight);
 		mGameWallRight = new Rectangle(mScreenWidth, 0, 1, mScreenHeight);
 		mGameWallBottom = new Rectangle(0, -1, mScreenWidth, 1);
+		// put everything in it's starting place
+		startGame();
+	}
+
+
+	/**
+	 * Begins the game with an initial settings
+	 */
+	public void startGame() {
+		// TODO: when using random blocks, we need to restore previous configuration
+		startGame(createBlocks(), INITIAL_SCORE, INITIAL_BALLS_REMAINING, STARTING_LEVEL);
+	}
+
+	private void startGame(Array<Block> startingBlocks, int score, int numBalls, int level) {
+		// Events
+		mScoreEvent = new ScoreEvent();
+		mBrickDestroyedEvent = new BrickDestroyedEvent(startingBlocks.size);
+		mBallLostEvent = new BallLostEvent(numBalls);
+		mGameOverEvent = new GameOverEvent();
+		mPaddle.getBoundary().set(0, 0, 128, 32);
+		mBlocks = startingBlocks;
+		spawnBall(numBalls);
 		setGameRunning(true);
+		mEventBus.post(new GameStartedEvent(score, numBalls, level, mBlocks.size));
+	}
+
+	/**
+	 * Begins the game again from the last played configuration
+	 * Restores brick layout and ball speed
+	 * Reset paddle and ball position
+	 */
+	public void restartGame() {
+		// todo: initialize with same configuration
+		startGame();
 	}
 
 	private Array<Block> createBlocks() {
 		Array<Block> blocks = new Array<Block>(NUM_BLOCKS);
-		mBrickDestroyedEvent.bricksRemaining = NUM_BLOCKS;
-		mEventBus.postSticky(mBrickDestroyedEvent);
 		int blockHeight = getBlockHeight();
 		int blockWidth = mScreenWidth / BLOCKS_PER_ROW;
 		int row = 1;
@@ -137,7 +174,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 			reverseXVelocity(ballVelocity);
 		}
 		if (bounds.overlaps(mGameWallBottom)) {
-			spawnBall();
+			onBallLost();
 			return;
 		}
 
@@ -167,16 +204,27 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
 	}
 
-	private void spawnBall() {
+	private void onBallLost() {
 		mBallLostEvent.ballRemaining--;
 		mEventBus.post(mBallLostEvent);
-		if (mBallLostEvent.ballRemaining > 0){
-			mBall.getBoundary().setPosition(mScreenWidth / 2, (mScreenHeight / 2) - getBlockHeight());
-			mBall.getVelocity().set(2, -2);
+		if (spawnBall(mBallLostEvent.ballRemaining)) {
 			return;
 		}
 		setGameRunning(false);
 		mEventBus.post(mGameOverEvent);
+	}
+
+	/**
+	 * Spawn a ball for values greater than 0
+	 * @param ballsRemaining
+	 * @return true if ball was spawned
+	 */
+	private boolean spawnBall(int ballsRemaining) {
+		if (ballsRemaining > 0){
+			mBall.getBoundary().setPosition(mScreenWidth / 2, (mScreenHeight / 2) - getBlockHeight());
+			mBall.getVelocity().set(2, -2);
+		}
+		return ballsRemaining > 0;
 	}
 
 	private void reverseXVelocity(Vector2 ballVelocity) {

@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.bendaschel.cs372.brickgame.events.BallLostEvent;
 import com.bendaschel.cs372.brickgame.events.BrickDestroyedEvent;
+import com.bendaschel.cs372.brickgame.events.GameStartedEvent;
 import com.bendaschel.cs372.brickgame.events.ScoreEvent;
 import com.bendaschel.sevensegmentview.SevenSegmentView;
 
@@ -90,5 +91,13 @@ public class ScoreBoardFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onBallLost(BallLostEvent event) {
         mBallsView.setCurrentValue(event.ballRemaining);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onGameStarted(GameStartedEvent event) {
+        mScoreAdapter.setCurrentValue(event.score);
+        mBricksAdapter.setCurrentValue(event.bricksRemaining);
+        mBallsView.setCurrentValue(event.numBalls);
+        // TODO: add a view for current level
     }
 }

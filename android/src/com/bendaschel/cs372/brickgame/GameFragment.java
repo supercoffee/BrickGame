@@ -55,14 +55,14 @@ public class GameFragment extends AndroidFragmentApplication {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.d(TAG, "Restarting level");
+                            mGame.restartGame();
                         }
                     })
                     .setNegativeButton(R.string.start_over, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.d(TAG, "Starting game over");
-                            mGame.setBalls(BrickGame.INITIAL_BALLS_REMAINING);
-                            mGame.setGameRunning(true);
+                            mGame.startGame();
                         }
                     })
                     .create().show();
