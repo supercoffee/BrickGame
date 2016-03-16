@@ -24,6 +24,12 @@ public class ScoreBoardFragment extends Fragment {
     @Bind(R.id.ssv_score)
     SevenSegmentView mScoreView;
 
+    @Bind(R.id.ssv_score2)
+    SevenSegmentView mScoreView2;
+
+    @Bind(R.id.ssv_score3)
+    SevenSegmentView mScoreView3;
+
     @Bind(R.id.ssv_bricks_remaining)
     SevenSegmentView mBricksView;
 
@@ -49,6 +55,11 @@ public class ScoreBoardFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
+        mScoreView.setCurrentValue(0);
+        mScoreView2.setCurrentValue(0);
+        mScoreView3.setCurrentValue(0);
+    }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -60,5 +71,15 @@ public class ScoreBoardFragment extends Fragment {
 
         // TODO: Change to menu screen with more options
         Toast.makeText(getActivity(), R.string.toast_about, Toast.LENGTH_LONG).show();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onScoreChanged(ScoreEvent event){
+        int scoreDigit1 = event.score % 10;
+        int scoreDigit2 = (event.score / 10) % 10;
+        int scoreDigit3 = (event.score / 100) % 10;
+        mScoreView.setCurrentValue(scoreDigit1);
+        mScoreView2.setCurrentValue(scoreDigit2);
+        mScoreView3.setCurrentValue(scoreDigit3);
     }
 }
