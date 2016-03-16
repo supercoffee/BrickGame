@@ -5,13 +5,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.bendaschel.cs372.brickgame.events.BrickDestroyedEvent;
+import com.bendaschel.cs372.brickgame.events.ScoreEvent;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -40,6 +41,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private Paddle mPaddle;
 
 	private ScoreEvent mScoreEvent = new ScoreEvent();
+	private BrickDestroyedEvent mBrickDestroyedEvent = new BrickDestroyedEvent();
 
 	@Inject
 	public BrickGame(EventBus eventBus) {
@@ -68,6 +70,8 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	private Array<Block> createBlocks() {
 		Array<Block> blocks = new Array<Block>(NUM_BLOCKS);
+		mBrickDestroyedEvent.bricksRemaining = NUM_BLOCKS;
+		mEventBus.postSticky(mBrickDestroyedEvent);
 		int blockHeight = 32;
 		int remainingRowSpace = mScreenWidth;
 		int row = 1; // starts from top down
@@ -141,6 +145,8 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 			mBlocks.removeIndex(i);
 			mScoreEvent.score++;
 			mEventBus.post(mScoreEvent);
+			mBrickDestroyedEvent.bricksRemaining--;
+			mEventBus.post(mBrickDestroyedEvent);
 			break; // out of loop
 		}
 

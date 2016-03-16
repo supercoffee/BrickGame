@@ -8,6 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Menu"
+        android:layout_gravity="top"
         android:id="@+id/btn_menu"/>
 
     <TextView
@@ -27,22 +28,55 @@
             android:id="@+id/ssv_score3"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/segment_margin"
             android:layout_weight="1"
             />
         <com.bendaschel.sevensegmentview.SevenSegmentView
             android:id="@+id/ssv_score2"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/segment_margin"
             android:layout_weight="1"
-
             />
         <com.bendaschel.sevensegmentview.SevenSegmentView
             android:id="@+id/ssv_score"
             android:layout_width="0dp"
             android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/segment_margin"
             android:layout_weight="1"
             />
     </LinearLayout>
+
+
+
+    <TextView
+        android:id="@+id/tv_bricks_remaining"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Bricks"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_weight="2">
+
+        <com.bendaschel.sevensegmentview.SevenSegmentView
+            android:id="@+id/ssv_bricks_remaining2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/segment_margin"
+            android:layout_weight="1"/>
+        <com.bendaschel.sevensegmentview.SevenSegmentView
+            android:id="@+id/ssv_bricks_remaining"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="@dimen/segment_margin"
+            android:layout_weight="1"/>
+    </LinearLayout>
+
 
     <TextView
         android:id="@+id/tv_balls_remaining"
@@ -55,19 +89,8 @@
         android:id="@+id/ssv_balls_remaining"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:layout_marginRight="@dimen/segment_margin"
         android:layout_weight="2"/>
 
-    <TextView
-        android:id="@+id/tv_bricks_remaining"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Bricks"/>
-
-    <com.bendaschel.sevensegmentview.SevenSegmentView
-        android:id="@+id/ssv_bricks_remaining"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="2"/>
 
 </LinearLayout>

@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bendaschel.cs372.brickgame.events.BrickDestroyedEvent;
+import com.bendaschel.cs372.brickgame.events.ScoreEvent;
 import com.bendaschel.sevensegmentview.SevenSegmentView;
 
 import org.greenrobot.eventbus.EventBus;
@@ -23,15 +25,17 @@ public class ScoreBoardFragment extends Fragment {
 
     @Bind(R.id.ssv_score)
     SevenSegmentView mScoreView;
-
     @Bind(R.id.ssv_score2)
     SevenSegmentView mScoreView2;
-
     @Bind(R.id.ssv_score3)
     SevenSegmentView mScoreView3;
+    private SevenSegmentViewAdapter mScoreAdapter;
 
     @Bind(R.id.ssv_bricks_remaining)
     SevenSegmentView mBricksView;
+    @Bind(R.id.ssv_bricks_remaining2)
+    SevenSegmentView mBricksView2;
+    private SevenSegmentViewAdapter mBricksAdapter;
 
     @Bind(R.id.ssv_balls_remaining)
     SevenSegmentView mBallsView;
@@ -55,9 +59,8 @@ public class ScoreBoardFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        mScoreView.setCurrentValue(0);
-        mScoreView2.setCurrentValue(0);
-        mScoreView3.setCurrentValue(0);
+        mScoreAdapter = new SevenSegmentViewAdapter(mScoreView, mScoreView2, mScoreView3);
+        mBricksAdapter = new SevenSegmentViewAdapter(mBricksView, mBricksView2);
     }
 
     @Override
@@ -75,11 +78,11 @@ public class ScoreBoardFragment extends Fragment {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onScoreChanged(ScoreEvent event){
-        int scoreDigit1 = event.score % 10;
-        int scoreDigit2 = (event.score / 10) % 10;
-        int scoreDigit3 = (event.score / 100) % 10;
-        mScoreView.setCurrentValue(scoreDigit1);
-        mScoreView2.setCurrentValue(scoreDigit2);
-        mScoreView3.setCurrentValue(scoreDigit3);
+        mScoreAdapter.setCurrentValue(event.score);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
+    public void onBrickDestroyed(BrickDestroyedEvent event) {
+        mBricksAdapter.setCurrentValue(event.bricksRemaining);
     }
 }
