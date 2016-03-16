@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bendaschel.cs372.brickgame.events.BallLostEvent;
 import com.bendaschel.cs372.brickgame.events.BrickDestroyedEvent;
 import com.bendaschel.cs372.brickgame.events.ScoreEvent;
 import com.bendaschel.sevensegmentview.SevenSegmentView;
@@ -84,5 +85,10 @@ public class ScoreBoardFragment extends Fragment {
     @Subscribe(threadMode = ThreadMode.MAIN, sticky = true)
     public void onBrickDestroyed(BrickDestroyedEvent event) {
         mBricksAdapter.setCurrentValue(event.bricksRemaining);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onBallLost(BallLostEvent event) {
+        mBallsView.setCurrentValue(event.ballRemaining);
     }
 }

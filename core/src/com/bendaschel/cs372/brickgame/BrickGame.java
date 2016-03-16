@@ -74,11 +74,6 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		setGameRunning(true);
 	}
 
-	private void spawnBall() {
-		mBall.getBoundary().setPosition(mScreenWidth / 2, (mScreenHeight / 2) - getBlockHeight());
-		mBall.getVelocity().set(2, -2);
-	}
-
 	private Array<Block> createBlocks() {
 		Array<Block> blocks = new Array<Block>(NUM_BLOCKS);
 		mBrickDestroyedEvent.bricksRemaining = NUM_BLOCKS;
@@ -142,7 +137,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 			reverseXVelocity(ballVelocity);
 		}
 		if (bounds.overlaps(mGameWallBottom)) {
-			onBallLost();
+			spawnBall();
 			return;
 		}
 
@@ -172,11 +167,12 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
 	}
 
-	private void onBallLost() {
+	private void spawnBall() {
 		mBallLostEvent.ballRemaining--;
 		mEventBus.post(mBallLostEvent);
 		if (mBallLostEvent.ballRemaining > 0){
-			spawnBall();
+			mBall.getBoundary().setPosition(mScreenWidth / 2, (mScreenHeight / 2) - getBlockHeight());
+			mBall.getVelocity().set(2, -2);
 			return;
 		}
 		setGameRunning(false);
