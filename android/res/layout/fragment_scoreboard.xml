@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="Score"
+        android:textColor="@android:color/white"
         android:id="@+id/textView"/>
 
     <LinearLayout
@@ -54,6 +55,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/white"
         android:text="Bricks"/>
 
 
@@ -83,6 +85,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@android:color/white"
         android:text="Balls"/>
 
     <com.bendaschel.sevensegmentview.SevenSegmentView
