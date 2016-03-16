@@ -27,6 +27,8 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	static final int BG_COLOR_GREEN = 1;
 	static final int BG_COLOR_BLUE = 1;
 	static final int BG_ALPHA = 1;
+	private static final int BLOCKS_PER_ROW = 10;
+	private static final int MAX_BLOCK_ROWS = 10;
 	private final EventBus mEventBus;
 	SpriteBatch batch;
 	private Ball mBall;
@@ -72,22 +74,14 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		Array<Block> blocks = new Array<Block>(NUM_BLOCKS);
 		mBrickDestroyedEvent.bricksRemaining = NUM_BLOCKS;
 		mEventBus.postSticky(mBrickDestroyedEvent);
-		int blockHeight = 32;
-		int remainingRowSpace = mScreenWidth;
-		int row = 1; // starts from top down
-		Random random = new Random();
-		for (int i = 0; i < NUM_BLOCKS; i++){
-			int randomWidth = random.nextInt(mScreenWidth);
-			int x = mScreenWidth - remainingRowSpace;
+		int blockHeight = mScreenHeight / 2 / MAX_BLOCK_ROWS;
+		int blockWidth = mScreenWidth / BLOCKS_PER_ROW;
+		int row = 1;
+		for (int i = 0; i < NUM_BLOCKS; i++, row = (i/ BLOCKS_PER_ROW) + 1){
+			int x = (i % BLOCKS_PER_ROW) * blockWidth;
 			int y = mScreenHeight - (row * blockHeight);
-			int actualBlockWidth = Math.min(randomWidth, remainingRowSpace);
-			Block block = new Block(Color.RED, new Rectangle(x, y, actualBlockWidth, blockHeight));
+			Block block = new Block(Color.RED, new Rectangle(x, y, blockWidth, blockHeight));
 			blocks.add(block);
-			remainingRowSpace -= randomWidth;
-			if (remainingRowSpace <=0) {
-				row++;
-				remainingRowSpace = mScreenWidth;
-			}
 		}
 		return blocks;
 	}
