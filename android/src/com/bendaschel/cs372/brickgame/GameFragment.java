@@ -13,7 +13,7 @@ public class GameFragment extends AndroidFragmentApplication {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mGame = new BrickGame();
+        mGame = ObjectGraphHolder.sObjectGraph.get(BrickGame.class);
         return initializeForView(mGame);
     }
 

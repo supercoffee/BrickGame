@@ -13,7 +13,11 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.Random;
+
+import javax.inject.Inject;
 
 public class BrickGame extends ApplicationAdapter implements GestureDetector.GestureListener {
 
@@ -22,6 +26,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	static final int BG_COLOR_GREEN = 1;
 	static final int BG_COLOR_BLUE = 1;
 	static final int BG_ALPHA = 1;
+	private final EventBus mEventBus;
 	SpriteBatch batch;
 	private Ball mBall;
 	private Rectangle mGameWallTop;
@@ -34,6 +39,12 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private Array<Block> mBlocks;
 	private Paddle mPaddle;
 
+	private ScoreEvent mScoreEvent = new ScoreEvent();
+
+	@Inject
+	public BrickGame(EventBus eventBus) {
+		mEventBus = eventBus;
+	}
 
 	@Override
 	public void create () {
@@ -128,6 +139,8 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 				default: continue; // to top of loop
 			}
 			mBlocks.removeIndex(i);
+			mScoreEvent.score++;
+			mEventBus.post(mScoreEvent);
 			break; // out of loop
 		}
 
