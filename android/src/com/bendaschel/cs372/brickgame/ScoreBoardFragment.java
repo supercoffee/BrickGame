@@ -42,6 +42,12 @@ public class ScoreBoardFragment extends Fragment {
     @Bind(R.id.ssv_balls_remaining)
     SevenSegmentView mBallsView;
 
+    @Bind(R.id.ssv_level)
+    SevenSegmentView mLevelView;
+    @Bind(R.id.ssv_level2)
+    SevenSegmentView mLevelView2;
+    private SevenSegmentViewAdapter mLevelAdapter;
+
     @Inject
     EventBus mGameEventBus;
 
@@ -63,6 +69,7 @@ public class ScoreBoardFragment extends Fragment {
         ButterKnife.bind(this, view);
         mScoreAdapter = new SevenSegmentViewAdapter(mScoreView, mScoreView2, mScoreView3);
         mBricksAdapter = new SevenSegmentViewAdapter(mBricksView, mBricksView2);
+        mLevelAdapter = new SevenSegmentViewAdapter(mLevelView, mLevelView2);
     }
 
     @Override
@@ -98,6 +105,6 @@ public class ScoreBoardFragment extends Fragment {
         mScoreAdapter.setCurrentValue(event.score);
         mBricksAdapter.setCurrentValue(event.bricksRemaining);
         mBallsView.setCurrentValue(event.numBalls);
-        // TODO: add a view for current level
+        mLevelAdapter.setCurrentValue(event.level);
     }
 }
