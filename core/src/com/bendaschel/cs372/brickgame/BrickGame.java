@@ -34,6 +34,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private static final int MAX_BLOCK_ROWS = 10;
 	private static final int INITIAL_SCORE = 0;
 	private static final int STARTING_LEVEL = 1;
+	private static final float BALL_VELOCITY_INCREASE_PER_LEVEL = 1.25f;
 	private final EventBus mEventBus;
 	SpriteBatch batch;
 	private Ball mBall;
@@ -75,6 +76,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		// game actor objects
 		mPaddle = new Paddle(Color.GREEN);
 		mBall = new Ball(ballTexture);
+		mBall.getVelocity().set(2, -2);
 		// Game walls
 		mScreenHeight = Gdx.graphics.getHeight();
 		mScreenWidth = Gdx.graphics.getWidth();
@@ -243,7 +245,6 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private boolean spawnBall(int ballsRemaining) {
 		if (ballsRemaining > 0){
 			mBall.getBoundary().setPosition(mScreenWidth / 2, (mScreenHeight / 2) - getBlockHeight());
-			mBall.getVelocity().set(2, -2);
 		}
 		return ballsRemaining > 0;
 	}
@@ -270,7 +271,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	@Override
 	public boolean longPress(float x, float y) {
-		onLevelComplete();
+		onLevelComplete(); // for testing easily
 		return false;
 	}
 
@@ -308,6 +309,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	public void nextLevel() {
 		Array<Block> blocks = createBlocks();
-		startGame(blocks, mGameTotalScore + mLevelScore, INITIAL_BALLS_REMAINING, mCurrentLevel +1);
+		mBall.getVelocity().scl(BALL_VELOCITY_INCREASE_PER_LEVEL);
+		startGame(blocks, mGameTotalScore + mLevelScore, INITIAL_BALLS_REMAINING, mCurrentLevel + 1);
 	}
 }
