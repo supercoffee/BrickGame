@@ -35,6 +35,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private static final int INITIAL_SCORE = 0;
 	private static final int STARTING_LEVEL = 1;
 	private static final float BALL_VELOCITY_INCREASE_PER_LEVEL = 1.25f;
+	private static final float PADDLE_WIDTH = 128;
 	private final EventBus mEventBus;
 	SpriteBatch batch;
 	private Ball mBall;
@@ -76,7 +77,6 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		// game actor objects
 		mPaddle = new Paddle(Color.GREEN);
 		mBall = new Ball(ballTexture);
-		mBall.getVelocity().set(2, -2);
 		// Game walls
 		mScreenHeight = Gdx.graphics.getHeight();
 		mScreenWidth = Gdx.graphics.getWidth();
@@ -94,6 +94,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	 */
 	public void startGame() {
 		// TODO: when using random blocks, we need to restore previous configuration
+		mBall.getVelocity().set(2, -2);
 		startGame(createBlocks(), INITIAL_SCORE, INITIAL_BALLS_REMAINING, STARTING_LEVEL);
 	}
 
@@ -106,7 +107,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		mBrickDestroyedEvent = new BrickDestroyedEvent(startingBlocks.size);
 		mBallLostEvent = new BallLostEvent(numBalls);
 		mGameOverEvent = new GameOverEvent();
-		mPaddle.getBoundary().set(0, 0, 128, 32);
+		mPaddle.getBoundary().set(mScreenWidth / 2 - (mPaddle.getBoundary().getWidth() /2), 0, PADDLE_WIDTH, 32 );
 		mBlocks = startingBlocks;
 		spawnBall(numBalls);
 		setGameRunning(true);
@@ -245,6 +246,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private boolean spawnBall(int ballsRemaining) {
 		if (ballsRemaining > 0){
 			mBall.getBoundary().setPosition(mScreenWidth / 2, (mScreenHeight / 2) - getBlockHeight());
+			mBall.getVelocity().setAngle(-45);
 		}
 		return ballsRemaining > 0;
 	}
@@ -265,7 +267,7 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
-//		setGameRunning(!mGameRunning);
+		setGameRunning(!mGameRunning);
 		return false;
 	}
 
