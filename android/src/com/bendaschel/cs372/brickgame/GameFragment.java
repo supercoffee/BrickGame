@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import com.badlogic.gdx.backends.android.AndroidFragmentApplication;
 import com.bendaschel.cs372.brickgame.events.GameOverEvent;
+import com.bendaschel.cs372.brickgame.events.LevelCompleteEvent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -55,7 +56,7 @@ public class GameFragment extends AndroidFragmentApplication {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.d(TAG, "Restarting level");
-                            mGame.restartGame();
+                            mGame.restartLevel();
                         }
                     })
                     .setNegativeButton(R.string.start_over, new DialogInterface.OnClickListener() {
@@ -67,5 +68,30 @@ public class GameFragment extends AndroidFragmentApplication {
                     })
                     .create().show();
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onLevelComplete(LevelCompleteEvent event) {
+        // TODO: SHOW continue dialog
+        Log.d(TAG, "onLevelComplete");
+        new AlertDialog.Builder(getActivity())
+                .setCancelable(false)
+                .setTitle(R.string.level_complete)
+                .setPositiveButton(R.string.next_level, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "Starting next level");
+                        mGame.nextLevel();
+                    }
+                })
+                .setNegativeButton(R.string.retry_level, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.d(TAG, "Restarting level");
+                        mGame.restartLevel();
+                    }
+                })
+                .create().show();
+
     }
 }

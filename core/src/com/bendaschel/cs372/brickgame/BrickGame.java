@@ -15,6 +15,7 @@ import com.bendaschel.cs372.brickgame.events.BallLostEvent;
 import com.bendaschel.cs372.brickgame.events.BrickDestroyedEvent;
 import com.bendaschel.cs372.brickgame.events.GameOverEvent;
 import com.bendaschel.cs372.brickgame.events.GameStartedEvent;
+import com.bendaschel.cs372.brickgame.events.LevelCompleteEvent;
 import com.bendaschel.cs372.brickgame.events.ScoreEvent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -51,6 +52,10 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	private BallLostEvent mBallLostEvent;
 	private GameOverEvent mGameOverEvent;
 	private boolean mGameRunning;
+
+	private int mGameTotalScore;
+	private int mLevelScore;
+	private int mCurrentLevel;
 
 	@Inject
 	public BrickGame(EventBus eventBus) {
@@ -92,6 +97,9 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	private void startGame(Array<Block> startingBlocks, int score, int numBalls, int level) {
 		// Events
+		mCurrentLevel = level;
+		mGameTotalScore = score;
+		mLevelScore = 0;
 		mScoreEvent = new ScoreEvent();
 		mBrickDestroyedEvent = new BrickDestroyedEvent(startingBlocks.size);
 		mBallLostEvent = new BallLostEvent(numBalls);
@@ -108,9 +116,9 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 	 * Restores brick layout and ball speed
 	 * Reset paddle and ball position
 	 */
-	public void restartGame() {
-		// todo: initialize with same configuration
-		startGame();
+	public void restartLevel() {
+		Array<Block> blocks = createBlocks();
+		startGame(blocks, mGameTotalScore, INITIAL_BALLS_REMAINING, mCurrentLevel);
 	}
 
 	private Array<Block> createBlocks() {
@@ -194,14 +202,27 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 				default: continue; // to top of loop
 			}
 			mBlocks.removeIndex(i);
-			mScoreEvent.score++;
-			mEventBus.post(mScoreEvent);
-			mBrickDestroyedEvent.bricksRemaining--;
-			mEventBus.post(mBrickDestroyedEvent);
+			onBrickDestroyed();
 			break; // out of loop
 		}
 
 		bounds.setPosition(mBall.getPosition().add(ballVelocity));
+	}
+
+	private void onBrickDestroyed() {
+		mLevelScore++;
+		mScoreEvent.score = mLevelScore + mGameTotalScore;
+		mEventBus.post(mScoreEvent);
+		mBrickDestroyedEvent.bricksRemaining = mBlocks.size;
+		mEventBus.post(mBrickDestroyedEvent);
+		if (mBlocks.size == 0) {
+			onLevelComplete();
+		}
+	}
+
+	private void onLevelComplete() {
+		setGameRunning(false);
+		mEventBus.post(new LevelCompleteEvent());
 	}
 
 	private void onBallLost() {
@@ -243,12 +264,13 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 
 	@Override
 	public boolean tap(float x, float y, int count, int button) {
-		setGameRunning(!mGameRunning);
+//		setGameRunning(!mGameRunning);
 		return false;
 	}
 
 	@Override
 	public boolean longPress(float x, float y) {
+		onLevelComplete();
 		return false;
 	}
 
@@ -284,7 +306,8 @@ public class BrickGame extends ApplicationAdapter implements GestureDetector.Ges
 		mGameRunning = gameRunning;
 	}
 
-	public void setBalls(int ballsRemaining) {
-		mBallLostEvent.ballRemaining = ballsRemaining;
+	public void nextLevel() {
+		Array<Block> blocks = createBlocks();
+		startGame(blocks, mGameTotalScore + mLevelScore, INITIAL_BALLS_REMAINING, mCurrentLevel +1);
 	}
 }

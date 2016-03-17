@@ -11,5 +11,7 @@
     <string name="balls">Balls</string>
     <string name="bricks">Bricks</string>
     <string name="score">Score</string>
+    <string name="level_complete">Level Complete!</string>
+    <string name="next_level">Next Level</string>
 
 </resources>
